@@ -13,6 +13,9 @@ RUN apt-get update && \
      libzip-dev \
      lsb-release
 
+RUN pecl install memcache
+RUN docker-php-ext-enable memcache
+
 RUN docker-php-ext-install pdo_mysql
 
 # php composer
