@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  app:
+    build: ${PHP_BUILD_PATH}
+    volumes:
+      - ./server:/var/www/html
+    depends_on:
+      - db
+
+  nginx:
+    build: ${NGINX_BUILD_PATH}
+    ports:
+      - ${NGINX_HOST_PORT_HTTP}:${NGINX_CONTAINER_PORT_HTTP}
+      - ${NGINX_HOST_PORT_HTTPS}:${NGINX_CONTAINER_PORT_HTTPS}
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl/cert-key.pem:/etc/nginx/certs/cert-key.pem
+      - ./docker/nginx/ssl/cert.pem:/etc/nginx/certs/cert.pem
+    depends_on:
+      - app
+
+  db:
+    platform: linux/x86_64
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${MYSQL_TIME_ZONE}
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - ${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}
+
+# S3のmockコンテナ
+
+# memcachedのmockコンテナ
+
+  memcached:
+    image: memcached:1.6.15-alpine3.16
